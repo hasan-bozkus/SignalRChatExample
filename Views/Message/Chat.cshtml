@@ -1,0 +1,62 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <script src="~/microsoft/signalr/signalr.min.js"></script>
+    <script src="~/jquery/jquery.min.js"></script>
+    <script>
+
+        $(document).ready(() => {
+            var connection = new signalR.HubConnectionBuilder()
+                .withUrl("https://localhost:44331/messagehub")
+                .build();
+
+            connection.start();
+
+            $("#btnSendButton").click(() => {
+                let userName = $("#txtUserName").val();
+                let message = $("#txtMassage").val();
+                connection.invoke("SendingMessageAsync", message, userName);
+            });
+
+            connection.on("receivedMessage", (message, userName) => {
+                $("#messagesList").append(`${userName}: ${message}<br />`);
+            });
+
+        });
+
+    </script>
+</head>
+<body>
+    <div class="container">
+    <div class="row p-1">
+        <div class="col-1">User</div>
+            <div class="col-5"><input type="text" id="txtUserName" /></div>
+    </div>
+    <div class="row p-1">
+        <div class="col-1">Message</div>
+            <div class="col-5"><input type="text" class="w-100" id="txtMassage" /></div>
+    </div>
+    <div class="row p-1">
+        <div class="col-6 text-end">
+                <button type="button" id="btnSendButton">Gönder</button>
+        </div>
+    </div>
+    <div class="row p-1">
+        <div class="col-6">
+            <hr />
+        </div>
+    </div>
+    <div class="row p-1">
+        <div class="col-6">
+            <ul id="messagesList"></ul>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

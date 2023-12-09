@@ -13,9 +13,12 @@
         $(document).ready(() => {
             var connection = new signalR.HubConnectionBuilder()
                 .withUrl("https://localhost:44331/messagehub")
+                .configureLogging(signalR.LogLevel.Information)
                 .build();
 
-            connection.start();
+            connection.start()
+            .then(() => console.log("Bağlantı başarıyla gerçekleştirildi."))
+                .catch(error => console.log("Bağlantı sağlanırken beklenmeyen bir hatayla karşılaşıldı."));
 
             $("#btnSendButton").click(() => {
                 let userName = $("#txtUserName").val();

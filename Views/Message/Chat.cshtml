@@ -12,13 +12,53 @@
 
         $(document).ready(() => {
             var connection = new signalR.HubConnectionBuilder()
-                .withUrl("https://localhost:44331/messagehub")
+                .withUrl("https://localhost:5001/messagehub")
                 .configureLogging(signalR.LogLevel.Information)
+                .withAutomaticReconnect([1000, 4000, 5000, 3000, 5000, 2000, 10, 1000])
                 .build();
 
-            connection.start()
-            .then(() => console.log("Bağlantı başarıyla gerçekleştirildi."))
-                .catch(error => console.log("Bağlantı sağlanırken beklenmeyen bir hatayla karşılaşıldı."));
+
+            //Bağlantının hiç kurulmadığı  durumlarda bu fonksiyon kullanılır.
+            function start() {
+                connection.start().then(() => { }).catch(error => setTimeout(() => start(), 2000))
+            }
+
+            start();
+            function animation() {
+                status.fadeIn(2000, () => {
+                    setTimeout(() => {
+                        status.fadeOut(2000);
+                    }, 2000);
+                });
+            }
+
+            const status = $("#Status");
+
+            //Bağlantının tekrardan sağlanmaya çalışıldığı durumlarda kullanılır.
+            connection.onreconnecting(error => {
+                $("#Status").css("background-color", "#6286a0");
+                $("#Status").css("color", "#white");
+                $("#Status").html("Bağlanılıyor");
+                animation();
+            });
+
+            //Bağlantının yeniden sağlandığı durumlarda kullanılır,
+            connection.onreconnected(connecitonid => {
+                $("#Status").css("background-color", "#32a838");
+                $("#Status").css("color", "#white");
+                $("#Status").html("Bağlandı");
+                animation();
+            });
+
+            //Bağlantının kulurlamadığı ve sonlandığı durumlarda kullanılır.
+            connection.onclose(connecitonid => {
+                $("#Status").css("background-color", "red");
+                $("#Status").css("color", "#white");
+                $("#Status").html("Bağlanılamadı");
+                animation();
+            });
+
+
 
             $("#btnSendButton").click(() => {
                 let userName = $("#txtUserName").val();
@@ -35,31 +75,32 @@
     </script>
 </head>
 <body>
+    <div id="Status" style="display:none; border-radius:40px 40px 40px 40px; text-shadow: #2d4251 5px 5px 5px;"></div>
     <div class="container">
-    <div class="row p-1">
-        <div class="col-1">User</div>
+        <div class="row p-1">
+            <div class="col-1">User</div>
             <div class="col-5"><input type="text" id="txtUserName" /></div>
-    </div>
-    <div class="row p-1">
-        <div class="col-1">Message</div>
+        </div>
+        <div class="row p-1">
+            <div class="col-1">Message</div>
             <div class="col-5"><input type="text" class="w-100" id="txtMassage" /></div>
-    </div>
-    <div class="row p-1">
-        <div class="col-6 text-end">
+        </div>
+        <div class="row p-1">
+            <div class="col-6 text-end">
                 <button type="button" id="btnSendButton">Gönder</button>
+            </div>
+        </div>
+        <div class="row p-1">
+            <div class="col-6">
+                <hr />
+            </div>
+        </div>
+        <div class="row p-1">
+            <div class="col-6">
+                <ul id="messagesList"></ul>
+            </div>
         </div>
     </div>
-    <div class="row p-1">
-        <div class="col-6">
-            <hr />
-        </div>
-    </div>
-    <div class="row p-1">
-        <div class="col-6">
-            <ul id="messagesList"></ul>
-        </div>
-    </div>
-</div>
 
 </body>
 </html>

@@ -32,6 +32,29 @@
                 });
             }
 
+            //Bağlantı sağlnadığında server'a client'ın bağlantı sağlandığını belirtir ve client tarafında kısa süreliğine hangi client'ın bağlandığını gösterir.
+            connection.on("JoinedUser", connectionId => {
+                $("#clinetstatus").html(`${connectionId} katıldı.`);
+                $("#clinetstatus").fadeIn(2000, () => {
+                    setTimeout(() => {
+                        $("#clinetstatus").fadeOut(2000);
+                    }, 2000);
+                });
+
+            });
+
+            //Bağlantı koptuğunda server'a client'ın bağlantının koptuğunu belirtir ve client tarafında kısa süreliğine hangi client'ın ayrıldığını gösterir.
+            connection.on("LeavedUser", connectionId => {
+                $("#clinetstatus").html(`${connectionId} Ayrıldı.`);
+                $("#clinetstatus").fadeIn(2000, () => {
+                    setTimeout(() => {
+                        $("#clinetstatus").fadeOut(2000);
+                    }, 2000);
+                });
+
+            });
+
+
             const status = $("#Status");
 
             //Bağlantının tekrardan sağlanmaya çalışıldığı durumlarda kullanılır.
@@ -75,6 +98,12 @@
     </script>
 </head>
 <body>
+
+
+    <div class="alert alert-success" id="clinetstatus" style="display:none;">
+        A Simple success alret yeri
+    </div>
+
     <div id="Status" style="display:none; border-radius:40px 40px 40px 40px; text-shadow: #2d4251 5px 5px 5px;"></div>
     <div class="container">
         <div class="row p-1">

@@ -93,6 +93,15 @@
                 $("#messagesList").append(`${userName}: ${message}<br />`);
             });
 
+
+            //Server'a bağlanan tüm client'ları listeler
+            connection.on("clients", clients => {
+                let _client = "";
+                for (const client in clients) {
+                    lis += `<li>${clients[client]}</li>`;
+                }
+                $("#clients").html(_client);
+            });
         });
 
     </script>
